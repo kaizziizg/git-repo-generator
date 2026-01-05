@@ -33,8 +33,20 @@ class RepoRequest(BaseModel):
     total: int
     contributions: List[Contribution]
 
-def git(*args, cwd: str, env: dict | None = None):
-    subprocess.run(["git", *args], cwd=cwd, env=env, check=True)
+def git_in(repo_dir: str, *args, env: dict | None = None):
+    p = subprocess.run(
+        ["git", "-C", repo_dir, *args],
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    if p.returncode != 0:
+        raise RuntimeError(
+            f"git -C {repo_dir} {' '.join(args)} failed (code={p.returncode})\n"
+            f"stdout:\n{p.stdout}\n"
+            f"stderr:\n{p.stderr}\n"
+        )
+    return p.stdout
 
 def cleanup_temp_dir(temp_dir: str):
     if os.path.exists(temp_dir):
@@ -42,32 +54,35 @@ def cleanup_temp_dir(temp_dir: str):
 
 @app.post("/generate-repo")
 async def generate_repo(data: RepoRequest, background_tasks: BackgroundTasks):
-    # 1. create unique temp folder
     base_dir = tempfile.mkdtemp()
     repo_path = os.path.join(base_dir, data.repoName)
-    os.makedirs(repo_path)
+    os.makedirs(repo_path, exist_ok=True)
 
     try:
-        # 2. initialize Git Repository
-        # set git user info
-        git_cmds = []
-        git_cmds.append('git init -b main')
-        git_cmds.append(f'git config user.name "{data.user}"')
-        git_cmds.append(f'git config user.email "{data.email}"')
-        
+        # 1) init repo (must happen before any commit)
+        git_in(repo_path, "init", "-b", "main")
+
+        # 2) sanity check: ensure it's really a git repo
+        git_in(repo_path, "rev-parse", "--is-inside-work-tree")
+
+        # 3) create commits (empty commits; no files needed)
         for entry in data.contributions:
             dt = f"{entry.date}T{entry.time}+08:00"
+
             for _ in range(entry.count):
-                env = os.environ | {
-                    "GIT_AUTHOR_DATE": dt,
-                    "GIT_COMMITTER_DATE": dt,
-                }
-                subprocess.run(
-                    ["git", "commit", "--allow-empty", "-m", "chore: contribution graph"],
-                    cwd=repo_path,
+                env = os.environ.copy()
+                env["GIT_AUTHOR_DATE"] = dt
+                env["GIT_COMMITTER_DATE"] = dt
+
+                git_in(
+                    repo_path,
+                    "-c", f"user.name={data.user}",
+                    "-c", f"user.email={data.email}",
+                    "commit", "--allow-empty",
+                    "-m", "chore: contribution graph",
                     env=env,
-                    check=True,
                 )
+
 
         # 4. Compress to ZIP
         zip_base_name = os.path.join(base_dir, data.repoName)
