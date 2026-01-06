@@ -14,11 +14,11 @@ app = FastAPI(title="Git Repo Generator")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",
+        "",
     ],
     allow_credentials=True,
-    allow_methods=["*"],   # POST / GET / OPTIONS 都允許
-    allow_headers=["*"],   # Content-Type / Authorization 等
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class Contribution(BaseModel):

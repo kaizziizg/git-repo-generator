@@ -8,7 +8,7 @@ You provide a list of contributions (date, time, count), and the service:
 3. Packages the repository as a `.zip` file
 4. Returns it for download
 
-> ✅ Designed to be used together with **https://gcc.gnar.cc**  
+> ✅ Designed to be used together with **https://tool.gnar.cc/git-repo-gen**  
 > ⚠️ Please use responsibly and follow GitHub’s terms and community guidelines.
 
 ---
@@ -27,7 +27,6 @@ You provide a list of contributions (date, time, count), and the service:
 - Python 3.9+
 - FastAPI
 - Uvicorn
-- GitPython
 - Pydantic
 
 ---
