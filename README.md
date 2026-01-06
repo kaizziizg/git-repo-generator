@@ -8,7 +8,7 @@ You provide a list of contributions (date, time, count), and the service:
 3. Packages the repository as a `.zip` file
 4. Returns it for download
 
-> ✅ Designed to be used together with **https://tool.gnar.cc/git-repo-gen**  
+> ✅ Designed to be used together with **[https://tool.gnar.cc/github-contribution-chart-builder](https://tool.gnar.cc/github-contribution-chart-builder)**  
 > ⚠️ Please use responsibly and follow GitHub’s terms and community guidelines.
 
 ---
@@ -128,9 +128,9 @@ After extracting the ZIP file, you will have a fully initialized Git repository 
 
 ---
 
-## Using with gcc.gnar.cc
+## Using with **github-contribution-chart-builder**
 
-1. Go to **[https://gcc.gnar.cc](https://gcc.gnar.cc)**
+1. Go to **[https://tool.gnar.cc/github-contribution-chart-builder](https://tool.gnar.cc/github-contribution-chart-builder)**
 2. Design your GitHub contribution chart pattern
 3. Export or copy the generated contribution data
 4. Send it to this API (`/generate-repo`)
